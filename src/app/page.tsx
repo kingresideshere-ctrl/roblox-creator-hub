@@ -4,6 +4,7 @@ import CreatorAvatar from '@/components/CreatorAvatar';
 import AddCreatorModal from '@/components/AddCreatorModal';
 import AddCampaignModal from '@/components/AddCampaignModal';
 import EditCampaignModal from '@/components/EditCampaignModal';
+import CompareModal from '@/components/CompareModal';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/lib/auth-context';
 import { Creator, Campaign, PLATFORM_CONFIG, PlatformKey } from '@/lib/types';
@@ -150,6 +151,7 @@ function DashboardInner() {
   const [showAddCreator, setShowAddCreator] = useState(false);
   const [showAddCampaign, setShowAddCampaign] = useState(false);
   const [showEditCampaign, setShowEditCampaign] = useState(false);
+  const [showCompare, setShowCompare] = useState(false);
 
   // Date filters
   const [datePreset, setDatePreset] = useState<DatePreset>('all');
@@ -273,9 +275,14 @@ function DashboardInner() {
                   </div>
                 )}
               </div>
-              <button onClick={() => exportCSV(filteredCreators, dateRange.start, dateRange.end)} className="px-4 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer" style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
-                ↓ Export CSV
-              </button>
+              <div className="flex gap-2">
+                <button onClick={() => setShowCompare(true)} className="px-4 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer" style={{ border: '1px solid var(--accent)', background: 'rgba(255,45,85,0.05)', color: 'var(--accent)' }}>
+                  ⚖️ Compare
+                </button>
+                <button onClick={() => exportCSV(filteredCreators, dateRange.start, dateRange.end)} className="px-4 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer" style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
+                  ↓ Export CSV
+                </button>
+              </div>
             </div>
 
             {/* Global Stats */}
@@ -520,6 +527,7 @@ function DashboardInner() {
           onDelete={(id) => { handleDeleteCampaign(id); setShowEditCampaign(false); }}
         />
       )}
+      {showCompare && <CompareModal creators={creators} onClose={() => setShowCompare(false)} />}
     </div>
   );
 }
