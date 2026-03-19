@@ -4,6 +4,8 @@ import CreatorAvatar from '@/components/CreatorAvatar';
 import AddCreatorModal from '@/components/AddCreatorModal';
 import AddCampaignModal from '@/components/AddCampaignModal';
 import EditCampaignModal from '@/components/EditCampaignModal';
+import AuthGuard from '@/components/AuthGuard';
+import { useAuth } from '@/lib/auth-context';
 import { Creator, Campaign, PLATFORM_CONFIG, PlatformKey } from '@/lib/types';
 import { formatNum, formatMoney, getCreatorStats, getCampaignStats, getRoiTier, getPlatformUsername, getPlatformLink } from '@/lib/utils';
 
@@ -137,7 +139,8 @@ function ROIBadge({ cpv }: { cpv: number }) {
 // ============================================
 // MAIN DASHBOARD
 // ============================================
-export default function Dashboard() {
+function DashboardInner() {
+  const { user, signOut } = useAuth();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'overview' | 'creator'>('overview');
@@ -225,6 +228,10 @@ export default function Dashboard() {
             <button onClick={() => { setView('overview'); setSelectedCreatorId(null); setSelectedCampaignId(null); }} className="px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer" style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)' }}>← Overview</button>
           )}
           <button onClick={() => setShowAddCreator(true)} className="px-4 py-2 rounded-lg text-xs font-bold cursor-pointer border-none text-white" style={{ background: 'linear-gradient(135deg, #ff2d55, #c837ab)' }}>+ Add Creator</button>
+          <div className="flex items-center gap-2 ml-2 pl-2" style={{ borderLeft: '1px solid var(--border)' }}>
+            <span className="text-[10px] font-mono" style={{ color: 'var(--muted)' }}>{user?.name || 'Team'}</span>
+            <button onClick={signOut} className="px-3 py-1.5 rounded-md text-[10px] font-semibold cursor-pointer" style={{ border: '1px solid var(--border)', background: 'transparent', color: 'var(--muted)' }}>Sign Out</button>
+          </div>
         </div>
       </header>
 
@@ -514,5 +521,14 @@ export default function Dashboard() {
         />
       )}
     </div>
+  );
+}
+
+// Wrap with auth guard
+export default function Dashboard() {
+  return (
+    <AuthGuard>
+      <DashboardInner />
+    </AuthGuard>
   );
 }
