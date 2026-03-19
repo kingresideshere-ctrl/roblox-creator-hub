@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Server-side profile fetcher — no CORS issues here
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get('url');
   const platform = req.nextUrl.searchParams.get('platform');
@@ -20,9 +19,31 @@ export async function GET(req: NextRequest) {
 async function fetchProfile(url: string, platform: string) {
   const clean = url.trim().replace(/\/+$/, '');
 
-  // --- YouTube ---
   if (platform === 'youtube') {
-    // Try noembed first
+    // Strategy 1: Scrape YouTube page for og:image and title
+    try {
+      const pageRes = await fetch(clean, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+          'Accept': 'text/html',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+        redirect: 'follow',
+      });
+      if (pageRes.ok) {
+        const html = await pageRes.text();
+        const ogImage = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/)?.[1]
+          || html.match(/<meta\s+content="([^"]+)"\s+property="og:image"/)?.[1];
+        const ogTitle = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/)?.[1]
+          || html.match(/<meta\s+content="([^"]+)"\s+property="og:title"/)?.[1];
+        const avatarMatch = html.match(/"avatar":\s*\{[^}]*"url":\s*"(https:\/\/yt3[^"]+)"/);
+        const avatar = avatarMatch?.[1] || ogImage;
+        const displayName = ogTitle?.replace(' - YouTube', '').trim();
+        if (avatar) return { displayName: displayName || null, avatar };
+      }
+    } catch {}
+
+    // Strategy 2: noembed
     try {
       const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(clean)}`);
       if (res.ok) {
@@ -33,52 +54,53 @@ async function fetchProfile(url: string, platform: string) {
       }
     } catch {}
 
-    // Try unavatar.io with extracted username
+    // Strategy 3: unavatar
     const username = extractUsername(clean, 'youtube');
     if (username) {
-      const avatarUrl = `https://unavatar.io/youtube/${username}`;
-      const test = await fetch(avatarUrl, { method: 'HEAD', redirect: 'follow' });
-      if (test.ok && test.headers.get('content-type')?.includes('image')) {
-        return { displayName: null, avatar: avatarUrl };
-      }
+      return { displayName: null, avatar: `https://unavatar.io/youtube/${username}` };
     }
   }
 
-  // --- TikTok ---
   if (platform === 'tiktok') {
     const username = extractUsername(clean, 'tiktok');
-    if (username) {
-      // Try unavatar
-      const avatarUrl = `https://unavatar.io/tiktok/${username}`;
-      try {
-        const test = await fetch(avatarUrl, { method: 'HEAD', redirect: 'follow' });
-        if (test.ok && test.headers.get('content-type')?.includes('image')) {
-          return { displayName: null, avatar: avatarUrl };
+    try {
+      const pageRes = await fetch(clean, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept': 'text/html' },
+        redirect: 'follow',
+      });
+      if (pageRes.ok) {
+        const html = await pageRes.text();
+        const ogImage = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/)?.[1]
+          || html.match(/<meta\s+content="([^"]+)"\s+property="og:image"/)?.[1];
+        const ogTitle = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/)?.[1];
+        if (ogImage && !ogImage.includes('tiktok-sharing')) {
+          return { displayName: ogTitle || null, avatar: ogImage };
         }
-      } catch {}
-    }
+      }
+    } catch {}
+    if (username) return { displayName: null, avatar: `https://unavatar.io/tiktok/${username}` };
   }
 
-  // --- Instagram ---
   if (platform === 'instagram') {
     const username = extractUsername(clean, 'instagram');
-    if (username) {
-      const avatarUrl = `https://unavatar.io/instagram/${username}`;
-      try {
-        const test = await fetch(avatarUrl, { method: 'HEAD', redirect: 'follow' });
-        if (test.ok && test.headers.get('content-type')?.includes('image')) {
-          return { displayName: null, avatar: avatarUrl };
-        }
-      } catch {}
-    }
+    try {
+      const pageRes = await fetch(clean, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept': 'text/html' },
+        redirect: 'follow',
+      });
+      if (pageRes.ok) {
+        const html = await pageRes.text();
+        const ogImage = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/)?.[1]
+          || html.match(/<meta\s+content="([^"]+)"\s+property="og:image"/)?.[1];
+        const ogTitle = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/)?.[1];
+        if (ogImage) return { displayName: ogTitle || null, avatar: ogImage };
+      }
+    } catch {}
+    if (username) return { displayName: null, avatar: `https://unavatar.io/instagram/${username}` };
   }
 
-  // Fallback: generic unavatar
   const username = extractUsername(clean, platform);
-  if (username) {
-    return { displayName: null, avatar: `https://unavatar.io/${username}` };
-  }
-
+  if (username) return { displayName: null, avatar: `https://unavatar.io/${username}` };
   return null;
 }
 
