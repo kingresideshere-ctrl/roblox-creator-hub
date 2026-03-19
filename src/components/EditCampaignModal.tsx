@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import CreatorAvatar from './CreatorAvatar';
+import BulkFetchModal from './BulkFetchModal';
 import { Creator, Campaign, PLATFORM_CONFIG, PlatformKey } from '@/lib/types';
 import { formatNum } from '@/lib/utils';
 
@@ -40,6 +41,7 @@ export default function EditCampaignModal({ creator, campaign, onClose, onSave, 
   const [fetchPlatform, setFetchPlatform] = useState<PlatformKey>('tiktok');
   const [fetching, setFetching] = useState(false);
   const [fetchResult, setFetchResult] = useState<string | null>(null);
+  const [showBulkFetch, setShowBulkFetch] = useState(false);
 
   const statsMap: Record<PlatformKey, { stats: any; set: any }> = {
     tiktok: { stats: ttStats, set: setTtStats },
@@ -168,6 +170,13 @@ export default function EditCampaignModal({ creator, campaign, onClose, onSave, 
               {fetchResult}
             </div>
           )}
+          <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+            <button onClick={() => setShowBulkFetch(true)}
+              className="w-full py-2 rounded-lg text-[11px] font-semibold cursor-pointer"
+              style={{ border: '1px solid var(--accent)', background: 'rgba(255,45,85,0.05)', color: 'var(--accent)' }}>
+              📋 Bulk Fetch — Paste Multiple URLs at Once
+            </button>
+          </div>
         </div>
 
         {/* Per-Platform Stats */}
@@ -228,6 +237,16 @@ export default function EditCampaignModal({ creator, campaign, onClose, onSave, 
           </button>
         </div>
       </div>
+      {showBulkFetch && (
+        <BulkFetchModal
+          onClose={() => setShowBulkFetch(false)}
+          onApply={(totals) => {
+            if (totals.tiktok) setTtStats(prev => ({ views: prev.views + (totals.tiktok.views || 0), likes: prev.likes + (totals.tiktok.likes || 0), comments: prev.comments + (totals.tiktok.comments || 0), shares: prev.shares + (totals.tiktok.shares || 0) }));
+            if (totals.youtube) setYtStats(prev => ({ views: prev.views + (totals.youtube.views || 0), likes: prev.likes + (totals.youtube.likes || 0), comments: prev.comments + (totals.youtube.comments || 0), shares: prev.shares + (totals.youtube.shares || 0) }));
+            if (totals.instagram) setIgStats(prev => ({ views: prev.views + (totals.instagram.views || 0), likes: prev.likes + (totals.instagram.likes || 0), comments: prev.comments + (totals.instagram.comments || 0), shares: prev.shares + (totals.instagram.shares || 0) }));
+          }}
+        />
+      )}
     </div>
   );
 }
