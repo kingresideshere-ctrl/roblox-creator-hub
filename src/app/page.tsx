@@ -217,7 +217,7 @@ function DashboardInner() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
       {/* Header */}
-      <header className="px-7 py-5 flex items-center justify-between sticky top-0 z-50" style={{ borderBottom: '1px solid var(--border)', background: 'linear-gradient(180deg, #12121a 0%, transparent 100%)', backdropFilter: 'blur(20px)' }}>
+      <header className="px-4 md:px-7 py-4 md:py-5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50" style={{ borderBottom: '1px solid var(--border)', background: 'linear-gradient(180deg, #12121a 0%, transparent 100%)', backdropFilter: 'blur(20px)' }}>
         <div className="flex items-center gap-3.5">
           <div className="w-9 h-9 rounded-[10px] flex items-center justify-center text-lg font-extrabold text-white" style={{ background: 'linear-gradient(135deg, #ff2d55, #c837ab)' }}>R</div>
           <div>
@@ -237,7 +237,7 @@ function DashboardInner() {
         </div>
       </header>
 
-      <div className="px-7 py-6 max-w-[1280px] mx-auto">
+      <div className="px-4 md:px-7 py-4 md:py-6 max-w-[1280px] mx-auto">
 
         {loading && (
           <div className="flex items-center justify-center py-24">
@@ -286,7 +286,7 @@ function DashboardInner() {
             </div>
 
             {/* Global Stats */}
-            <div className="grid grid-cols-4 gap-3.5 mb-7">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-7">
               {[
                 { label: 'TOTAL VIEWS', value: formatNum(globalStats.views), sub: datePreset === 'all' ? 'all time' : `last ${datePreset === 'custom' ? 'range' : datePreset}` },
                 { label: 'TOTAL SPENT', value: formatMoney(globalStats.spent), sub: 'all creators' },
@@ -360,7 +360,7 @@ function DashboardInner() {
                           })}
                         </div>
                       </div>
-                      <div className="flex gap-5 items-center">
+                      <div className="hidden md:flex gap-5 items-center">
                         {platformFilter === 'all' && (Object.entries(PLATFORM_CONFIG) as [PlatformKey, any][]).map(([p, cfg]) => (
                           <div key={p} className="text-right">
                             <div className="text-[10px] font-semibold mb-0.5" style={{ color: cfg.color }}>{cfg.icon} {cfg.label}</div>
@@ -443,7 +443,7 @@ function DashboardInner() {
               const campStats = getCampaignStats(activeCampaign);
               return (
                 <>
-                  <div className="grid grid-cols-3 gap-3.5 mb-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-5">
                     {[
                       { label: 'AMOUNT SPENT', value: formatMoney(Number(activeCampaign.spent)), accent: true },
                       { label: 'TOTAL VIEWS', value: formatNum(campStats.totalViews) },
@@ -469,7 +469,7 @@ function DashboardInner() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                     {(Object.entries(PLATFORM_CONFIG) as [PlatformKey, any][]).map(([pKey, pCfg], i) => {
                       const cp = activeCampaign.campaign_platforms?.find(p => p.platform === pKey);
                       const dailyData = cp?.daily_views ? [...cp.daily_views].sort((a, b) => a.date.localeCompare(b.date)).map(d => d.views) : [];
