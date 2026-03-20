@@ -132,7 +132,10 @@ export default function AddCampaignModal({ creator, onClose, onAdd }: Props) {
         {/* Auto-Fetch */}
         <div className="mb-5 p-4 rounded-xl" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
           <div className="text-[11px] font-semibold tracking-wide uppercase mb-2" style={{ color: 'var(--accent)' }}>⚡ Auto-Fetch Stats from URL</div>
-          <div className="text-[11px] mb-3" style={{ color: 'var(--muted)' }}>Paste a video/post URL to auto-pull views and engagement</div>
+          <div className="text-[11px] mb-3" style={{ color: 'var(--muted)' }}>
+            Paste a video URL to auto-pull stats. <strong style={{ color: 'var(--text-secondary)' }}>YouTube</strong> works best.
+            TikTok &amp; Instagram block auto-fetch — enter those stats manually below.
+          </div>
           <div className="flex gap-2 mb-2">
             <select value={fetchPlatform} onChange={e => setFetchPlatform(e.target.value as PlatformKey)}
               className="px-2 py-2 rounded-lg text-xs font-semibold outline-none"

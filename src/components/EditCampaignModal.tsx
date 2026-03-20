@@ -154,7 +154,8 @@ export default function EditCampaignModal({ creator, campaign, onClose, onSave, 
             ⚡ Auto-Fetch Stats from URL
           </div>
           <div className="text-[11px] mb-3" style={{ color: 'var(--muted)' }}>
-            Paste a video/post URL and we'll try to pull the view count, likes, and comments automatically
+            Paste a video URL to auto-pull stats. <strong style={{ color: 'var(--text-secondary)' }}>YouTube</strong> works best.
+            TikTok &amp; Instagram block auto-fetch — enter those stats manually below.
           </div>
           <div className="flex gap-2 mb-2">
             <select value={fetchPlatform} onChange={e => setFetchPlatform(e.target.value as PlatformKey)}
