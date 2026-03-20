@@ -57,6 +57,33 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data, { status: 201 });
 }
 
+// PUT update a creator (notes, status, etc)
+export async function PUT(req: NextRequest) {
+  const body = await req.json();
+  const { id, notes, status, name } = body;
+
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+
+  const updates: any = {};
+  if (notes !== undefined) updates.notes = notes;
+  if (status !== undefined) updates.status = status;
+  if (name !== undefined) updates.name = name.trim();
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
+  }
+
+  const { data, error } = await supabase
+    .from('creators')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
+}
+
 // DELETE a creator
 export async function DELETE(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id');

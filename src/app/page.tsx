@@ -7,7 +7,7 @@ import EditCampaignModal from '@/components/EditCampaignModal';
 import CompareModal from '@/components/CompareModal';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/lib/auth-context';
-import { Creator, Campaign, PLATFORM_CONFIG, PlatformKey } from '@/lib/types';
+import { Creator, Campaign, PLATFORM_CONFIG, PlatformKey, STATUS_CONFIG, CreatorStatus } from '@/lib/types';
 import { formatNum, formatMoney, getCreatorStats, getCampaignStats, getRoiTier, getPlatformUsername, getPlatformLink } from '@/lib/utils';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -213,6 +213,9 @@ function DashboardInner() {
     if (!confirm('Delete this creator and all their campaigns?')) return;
     try { await fetch(`/api/creators?id=${id}`, { method: 'DELETE' }); fetchCreators(); if (selectedCreatorId === id) { setView('overview'); setSelectedCreatorId(null); } } catch (e) { console.error(e); }
   };
+  const handleUpdateCreator = async (id: string, updates: { notes?: string; status?: string }) => {
+    try { await fetch('/api/creators', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...updates }) }); fetchCreators(); } catch (e) { console.error(e); }
+  };
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
@@ -350,7 +353,13 @@ function DashboardInner() {
                       <div className="w-7 h-7 rounded-[7px] flex items-center justify-center text-[13px] font-bold font-mono" style={{ background: 'var(--surface)', color: 'var(--muted)' }}>{i + 1}</div>
                       <CreatorAvatar name={c.name} size={38} imageUrl={c.avatar_url} />
                       <div className="flex-1 min-w-0">
-                        <div className="text-[15px] font-bold mb-1">{c.name}</div>
+                        <div className="text-[15px] font-bold mb-1 flex items-center gap-2">
+                          {c.name}
+                          {c.status && c.status !== 'active' && (() => {
+                            const sc = STATUS_CONFIG[c.status as CreatorStatus];
+                            return sc ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: sc.bg, color: sc.color, border: `1px solid ${sc.color}22` }}>{sc.label}</span> : null;
+                          })()}
+                        </div>
                         <div className="flex flex-wrap gap-1">
                           {(Object.keys(PLATFORM_CONFIG) as PlatformKey[]).map(p => {
                             const username = getPlatformUsername(c, p);
@@ -406,6 +415,45 @@ function DashboardInner() {
               <div className="flex gap-2">
                 <button onClick={() => setShowAddCampaign(true)} className="px-4 py-2.5 rounded-lg text-xs font-bold cursor-pointer" style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}>+ Log Campaign</button>
                 <button onClick={() => handleDeleteCreator(activeCreator.id)} className="px-3 py-2.5 rounded-lg text-xs cursor-pointer" style={{ border: '1px solid rgba(255,82,82,0.2)', background: 'rgba(255,82,82,0.05)', color: '#ff5252' }}>✕</button>
+              </div>
+            </div>
+
+            {/* Notes & Status */}
+            <div className="animate-fade-up rounded-xl p-4 mb-5 flex flex-col sm:flex-row gap-4" style={{ background: 'var(--card)', border: '1px solid var(--border)', animationDelay: '0.1s' }}>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold tracking-wide uppercase" style={{ color: 'var(--muted)' }}>Status:</span>
+                <div className="flex gap-1">
+                  {(Object.entries(STATUS_CONFIG) as [CreatorStatus, any][]).map(([key, cfg]) => (
+                    <button key={key}
+                      onClick={() => handleUpdateCreator(activeCreator.id, { status: key })}
+                      className="px-2 py-1 rounded text-[10px] font-bold cursor-pointer transition-all"
+                      style={{
+                        background: activeCreator.status === key ? cfg.bg : 'transparent',
+                        color: activeCreator.status === key ? cfg.color : 'var(--muted)',
+                        border: activeCreator.status === key ? `1px solid ${cfg.color}44` : '1px solid transparent',
+                        opacity: activeCreator.status === key ? 1 : 0.6,
+                      }}>
+                      {cfg.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-bold tracking-wide uppercase" style={{ color: 'var(--muted)' }}>Notes:</span>
+                </div>
+                <input
+                  defaultValue={activeCreator.notes || ''}
+                  placeholder="Add notes about this creator..."
+                  onBlur={e => {
+                    if (e.target.value !== (activeCreator.notes || '')) {
+                      handleUpdateCreator(activeCreator.id, { notes: e.target.value });
+                    }
+                  }}
+                  onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none"
+                  style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                />
               </div>
             </div>
 

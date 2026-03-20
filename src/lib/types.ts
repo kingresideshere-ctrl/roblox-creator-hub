@@ -27,6 +27,16 @@ export interface Campaign {
   campaign_platforms: CampaignPlatform[];
 }
 
+export type CreatorStatus = 'active' | 'rebook' | 'on_hold' | 'negotiating' | 'dropped';
+
+export const STATUS_CONFIG: Record<CreatorStatus, { label: string; color: string; bg: string }> = {
+  active: { label: 'Active', color: '#69f0ae', bg: 'rgba(105,240,174,0.08)' },
+  rebook: { label: 'Rebook', color: '#00e676', bg: 'rgba(0,230,118,0.1)' },
+  on_hold: { label: 'On Hold', color: '#ffd740', bg: 'rgba(255,215,64,0.08)' },
+  negotiating: { label: 'Negotiating', color: '#40c4ff', bg: 'rgba(64,196,255,0.08)' },
+  dropped: { label: 'Dropped', color: '#ff5252', bg: 'rgba(255,82,82,0.08)' },
+};
+
 export interface Creator {
   id: string;
   name: string;
@@ -38,6 +48,8 @@ export interface Creator {
   youtube_username: string | null;
   instagram_url: string | null;
   instagram_username: string | null;
+  notes: string | null;
+  status: CreatorStatus;
   campaigns: Campaign[];
 }
 
