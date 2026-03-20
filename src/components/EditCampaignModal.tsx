@@ -25,6 +25,7 @@ export default function EditCampaignModal({ creator, campaign, onClose, onSave, 
   const [spent, setSpent] = useState(String(campaign.spent || ''));
   const [startDate, setStartDate] = useState(campaign.start_date || '');
   const [endDate, setEndDate] = useState(campaign.end_date || '');
+  const [game, setGame] = useState(campaign.game || '');
 
   // Per-platform stats
   const getPlatStats = (p: PlatformKey) => {
@@ -113,13 +114,24 @@ export default function EditCampaignModal({ creator, campaign, onClose, onSave, 
             style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }} />
         </div>
 
-        {/* Spend + Dates */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        {/* Spend + Game + Dates */}
+        <div className="grid grid-cols-4 gap-3 mb-5">
           <div>
             <label className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5" style={{ color: 'var(--muted)' }}>Spend ($)</label>
             <input value={spent} onChange={e => setSpent(e.target.value)} type="number"
               className="w-full px-3 py-2.5 rounded-lg text-sm font-mono outline-none"
               style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }} />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5" style={{ color: 'var(--muted)' }}>Game</label>
+            <input value={game} onChange={e => setGame(e.target.value)} list="game-list-edit" placeholder="e.g. Blox Fruits"
+              className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+              style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }} />
+            <datalist id="game-list-edit">
+              {['Adopt Me', 'Blox Fruits', 'Brookhaven', 'Pet Simulator X', 'Murder Mystery 2', 'Arsenal', 'Tower of Hell', 'Jailbreak', 'Royal High', 'King Legacy', 'Anime Defenders', 'Bee Swarm Simulator'].map(g => (
+                <option key={g} value={g} />
+              ))}
+            </datalist>
           </div>
           <div>
             <label className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5" style={{ color: 'var(--muted)' }}>Start</label>
@@ -221,6 +233,7 @@ export default function EditCampaignModal({ creator, campaign, onClose, onSave, 
                 id: campaign.id,
                 name: name.trim(),
                 spent: Number(spent) || 0,
+                game: game.trim() || null,
                 start_date: startDate,
                 end_date: endDate,
                 platforms: {

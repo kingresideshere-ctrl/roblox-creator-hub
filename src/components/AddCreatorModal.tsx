@@ -78,6 +78,8 @@ export default function AddCreatorModal({ onClose, onAdd }: Props) {
   const [tiktok, setTiktok] = useState('');
   const [youtube, setYoutube] = useState('');
   const [instagram, setInstagram] = useState('');
+  const [groupName, setGroupName] = useState('');
+  const [channelLabel, setChannelLabel] = useState('');
 
   const ttProfile = useProfileFetch(tiktok, 'tiktok');
   const ytProfile = useProfileFetch(youtube, 'youtube');
@@ -136,10 +138,35 @@ export default function AddCreatorModal({ onClose, onAdd }: Props) {
           <label className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5" style={{ color: 'var(--muted)' }}>
             Creator Name
           </label>
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. BloxKing"
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Ali - Main Channel"
             className="w-full px-3.5 py-2.5 rounded-lg text-sm outline-none"
             style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
           />
+        </div>
+
+        {/* Grouping */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5" style={{ color: 'var(--muted)' }}>
+              Group Name <span className="normal-case font-normal">(optional)</span>
+            </label>
+            <input value={groupName} onChange={e => setGroupName(e.target.value)} placeholder="e.g. Ali"
+              className="w-full px-3 py-2.5 rounded-lg text-xs outline-none"
+              style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5" style={{ color: 'var(--muted)' }}>
+              Channel Label <span className="normal-case font-normal">(optional)</span>
+            </label>
+            <input value={channelLabel} onChange={e => setChannelLabel(e.target.value)} placeholder="e.g. Main, Clips, Shorts"
+              className="w-full px-3 py-2.5 rounded-lg text-xs outline-none"
+              style={{ border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+            />
+          </div>
+        </div>
+        <div className="text-[10px] mb-4 px-1" style={{ color: 'var(--muted)' }}>
+          If this creator has multiple channels, set the same Group Name for all of them (e.g. "Ali") and label each channel (e.g. "Main", "Clips").
         </div>
 
         <LinkInput label="TikTok Profile" platform="tiktok" value={tiktok} onChange={setTiktok} />
@@ -162,6 +189,8 @@ export default function AddCreatorModal({ onClose, onAdd }: Props) {
                   instagram_url: instagram.trim() || '',
                   avatar_url: bestAvatar,
                   display_name: bestDisplayName,
+                  group_name: groupName.trim() || null,
+                  channel_label: channelLabel.trim() || null,
                 });
                 onClose();
               }

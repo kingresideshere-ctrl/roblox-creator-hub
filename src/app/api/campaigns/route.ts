@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 // POST create a campaign with platform stats
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { creator_id, name, spent, start_date, end_date, platforms } = body;
+  const { creator_id, name, spent, start_date, end_date, game, platforms } = body;
 
   if (!creator_id || !name?.trim()) {
     return NextResponse.json({ error: 'creator_id and name required' }, { status: 400 });
@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
       creator_id,
       name: name.trim(),
       spent: spent || 0,
+      game: game || null,
       start_date: start_date || null,
       end_date: end_date || null,
     })
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
 // PUT update campaign (name, spent, dates, platform stats)
 export async function PUT(req: NextRequest) {
   const body = await req.json();
-  const { id, name, spent, start_date, end_date, platforms } = body;
+  const { id, name, spent, start_date, end_date, game, platforms } = body;
 
   if (!id) return NextResponse.json({ error: 'Campaign id required' }, { status: 400 });
 
@@ -67,6 +68,7 @@ export async function PUT(req: NextRequest) {
   const updates: any = {};
   if (name !== undefined) updates.name = name.trim();
   if (spent !== undefined) updates.spent = spent;
+  if (game !== undefined) updates.game = game;
   if (start_date !== undefined) updates.start_date = start_date;
   if (end_date !== undefined) updates.end_date = end_date;
 

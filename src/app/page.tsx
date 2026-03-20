@@ -36,7 +36,7 @@ function campaignInRange(c: Campaign, start: string | null, end: string | null):
 
 // --- CSV Export ---
 function exportCSV(creators: Creator[], dateStart: string | null, dateEnd: string | null) {
-  const rows: string[][] = [['Creator', 'Campaign', 'Spent', 'Start', 'End', 'Platform', 'Views', 'Likes', 'Comments', 'Shares', 'CPM', 'ROI Tier']];
+  const rows: string[][] = [['Creator', 'Group', 'Channel', 'Campaign', 'Game', 'Spent', 'Start', 'End', 'Platform', 'Views', 'Likes', 'Comments', 'Shares', 'CPM', 'ROI Tier']];
   creators.forEach(c => {
     c.campaigns.forEach(camp => {
       if (!campaignInRange(camp, dateStart, dateEnd)) return;
@@ -44,13 +44,15 @@ function exportCSV(creators: Creator[], dateStart: string | null, dateEnd: strin
       camp.campaign_platforms?.forEach(cp => {
         const tier = getRoiTier(campStats.cpv).tier;
         rows.push([
-          c.name, camp.name, String(camp.spent), camp.start_date || '', camp.end_date || '',
+          c.name, c.group_name || '', c.channel_label || '', camp.name, camp.game || '',
+          String(camp.spent), camp.start_date || '', camp.end_date || '',
           cp.platform, String(cp.views), String(cp.likes), String(cp.comments), String(cp.shares),
           campStats.cpv.toFixed(2), tier
         ]);
       });
       if (!camp.campaign_platforms?.length) {
-        rows.push([c.name, camp.name, String(camp.spent), camp.start_date || '', camp.end_date || '', '', '0', '0', '0', '0', '0', '']);
+        rows.push([c.name, c.group_name || '', c.channel_label || '', camp.name, camp.game || '',
+          String(camp.spent), camp.start_date || '', camp.end_date || '', '', '0', '0', '0', '0', '0', '']);
       }
     });
   });
@@ -355,6 +357,8 @@ function DashboardInner() {
                       <div className="flex-1 min-w-0">
                         <div className="text-[15px] font-bold mb-1 flex items-center gap-2">
                           {c.name}
+                          {c.channel_label && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded" style={{ background: 'rgba(64,196,255,0.08)', color: '#40c4ff', border: '1px solid rgba(64,196,255,0.15)' }}>{c.channel_label}</span>}
+                          {c.group_name && <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'var(--surface)', color: 'var(--muted)' }}>👥 {c.group_name}</span>}
                           {c.status && c.status !== 'active' && (() => {
                             const sc = STATUS_CONFIG[c.status as CreatorStatus];
                             return sc ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: sc.bg, color: sc.color, border: `1px solid ${sc.color}22` }}>{sc.label}</span> : null;
@@ -467,7 +471,7 @@ function DashboardInner() {
                       border: isActive ? '1px solid var(--accent)' : '1px solid var(--border)',
                       background: isActive ? 'rgba(255,45,85,0.1)' : 'var(--card)',
                       color: isActive ? 'var(--accent)' : 'var(--muted)',
-                    }}>{camp.name}</button>
+                    }}>{camp.name}{camp.game && <span className="ml-1.5 text-[9px] opacity-60">• {camp.game}</span>}</button>
                   );
                 })}
                 {activeCampaign && (

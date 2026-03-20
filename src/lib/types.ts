@@ -24,6 +24,7 @@ export interface Campaign {
   start_date: string | null;
   end_date: string | null;
   notes: string | null;
+  game: string | null;
   campaign_platforms: CampaignPlatform[];
 }
 
@@ -50,6 +51,8 @@ export interface Creator {
   instagram_username: string | null;
   notes: string | null;
   status: CreatorStatus;
+  group_name: string | null;
+  channel_label: string | null;
   campaigns: Campaign[];
 }
 

@@ -27,13 +27,12 @@ export async function GET() {
 // POST create a new creator
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, tiktok_url, youtube_url, instagram_url, avatar_url, display_name } = body;
+  const { name, tiktok_url, youtube_url, instagram_url, avatar_url, display_name, group_name, channel_label } = body;
 
   if (!name?.trim()) {
     return NextResponse.json({ error: 'Name is required' }, { status: 400 });
   }
 
-  // Extract usernames from URLs
   const tiktok_username = extractUsername(tiktok_url, 'tiktok');
   const youtube_username = extractUsername(youtube_url, 'youtube');
   const instagram_username = extractUsername(instagram_url, 'instagram');
@@ -46,6 +45,8 @@ export async function POST(req: NextRequest) {
       youtube_url, youtube_username,
       instagram_url, instagram_username,
       avatar_url, display_name,
+      group_name: group_name || null,
+      channel_label: channel_label || null,
     })
     .select()
     .single();
