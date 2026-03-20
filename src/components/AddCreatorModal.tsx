@@ -12,6 +12,8 @@ interface Props {
     instagram_url: string;
     avatar_url: string | null;
     display_name: string | null;
+    group_name: string | null;
+    channel_label: string | null;
   }) => void;
 }
 

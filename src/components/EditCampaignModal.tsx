@@ -13,6 +13,7 @@ interface Props {
     id: string;
     name: string;
     spent: number;
+    game: string | null;
     start_date: string;
     end_date: string;
     platforms: Record<string, { views: number; likes: number; comments: number; shares: number }>;
